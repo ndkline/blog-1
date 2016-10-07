@@ -1,0 +1,68 @@
+---
+layout: post
+title: Deploying/Revoking Admin Rights with Munki
+date: 2014-02-07 13:57:55.000000000 -05:00
+type: post
+published: true
+status: publish
+categories:
+- Configuration
+- Munki
+- Quick Fix
+tags:
+- Mac Management
+- OS X
+---
+<p>In our college we have users that would like to have administrative access to their machines even though Munki provides the ability to install software approved by the College.  To allow this we have created a packageless install for Munki which will issue a basic terminal command to add administrative rights for the user listed.  This package can also be uninstalled which will revoke access.  See the example listed below:</p>
+<p><!--more--></p>
+<p>[code language="xml"]&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br />
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;<br />
+&lt;plist version=&quot;1.0&quot;&gt;<br />
+&lt;dict&gt;<br />
+	&lt;key&gt;autoremove&lt;/key&gt;<br />
+	&lt;false/&gt;<br />
+	&lt;key&gt;catalogs&lt;/key&gt;<br />
+	&lt;array&gt;<br />
+		&lt;string&gt;Admin&lt;/string&gt;<br />
+	&lt;/array&gt;<br />
+	&lt;key&gt;category&lt;/key&gt;<br />
+	&lt;string&gt;Administrative Privleges&lt;/string&gt;<br />
+	&lt;key&gt;description&lt;/key&gt;<br />
+	&lt;string&gt;You have been approved for an administrator account.</p>
+<p>Operating computers in a Least User Privileges mode is a best practice for everyone; users should never routinely operate their computer in an Administrator Privilege mode. In this regard - IT IS EXPECTED - all persons with an Administrator Privilege are responsible for implementing all security measures as advised by Your Company Here. In the event that your system is compromised the status of your account will be reviewed.&lt;/string&gt;<br />
+	&lt;key&gt;developer&lt;/key&gt;<br />
+	&lt;string&gt;&lt;/string&gt;<br />
+	&lt;key&gt;display_name&lt;/key&gt;<br />
+	&lt;string&gt;Admin Privileges (Username)&lt;/string&gt;<br />
+	&lt;key&gt;icon_name&lt;/key&gt;<br />
+	&lt;string&gt;Company Logo?.png&lt;/string&gt;<br />
+	&lt;key&gt;installcheck_script&lt;/key&gt;<br />
+	&lt;string&gt;#!/bin/sh<br />
+/usr/bin/dscl . -read /Groups/admin GroupMembership | grep -v UserName<br />
+	&lt;/string&gt;<br />
+	&lt;key&gt;installer_item_size&lt;/key&gt;<br />
+	&lt;integer&gt;11&lt;/integer&gt;<br />
+	&lt;key&gt;installer_type&lt;/key&gt;<br />
+	&lt;string&gt;nopkg&lt;/string&gt;<br />
+	&lt;key&gt;minimum_os_version&lt;/key&gt;<br />
+	&lt;string&gt;10.4.0&lt;/string&gt;<br />
+	&lt;key&gt;name&lt;/key&gt;<br />
+	&lt;string&gt;UserName (Full Name)&lt;/string&gt;<br />
+	&lt;key&gt;preinstall_script&lt;/key&gt;<br />
+	&lt;string&gt;#!/bin/sh<br />
+/usr/sbin/dseditgroup -o edit -n /Local/Default -a UserName -t user admin<br />
+	&lt;/string&gt;<br />
+	&lt;key&gt;uninstall_method&lt;/key&gt;<br />
+	&lt;string&gt;uninstall_script&lt;/string&gt;<br />
+	&lt;key&gt;uninstall_script&lt;/key&gt;<br />
+	&lt;string&gt;#!/bin/sh<br />
+/usr/sbin/dseditgroup -o edit -n /Local/Default -d UserName -t user admin<br />
+	&lt;/string&gt;<br />
+	&lt;key&gt;uninstallable&lt;/key&gt;<br />
+	&lt;true/&gt;<br />
+	&lt;key&gt;version&lt;/key&gt;<br />
+	&lt;string&gt;1.0&lt;/string&gt;<br />
+&lt;/dict&gt;<br />
+&lt;/plist&gt;<br />
+[/code]</p>
+<p>We have made a folder in pkginfo in the Munki repository listed as "AdminPrivs".  For each user we grant admin rights we make a pkginfo which yes can clog up your production catalog or you could make an Admin catalog but it also allows us to see who has admin rights at a glance.  We usually use the naming convention Username-A-1.pkginfo.  With this you can place the package in <strong>managed installs</strong> so the admin rights are <strong>deployed automatically</strong> or you can place the package in <strong>managed uninstalls</strong> if you'd like to <strong>revoke</strong> the admin rights.</p>

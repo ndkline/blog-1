@@ -1,0 +1,88 @@
+---
+layout: post
+title: Casper 9.64 Bugs Discovered
+date: 2015-02-24 13:45:56.000000000 -05:00
+type: post
+image: /assets/casper-enrollment.png
+published: true
+status: publish
+categories:
+- Configuration
+- Quick Fix
+tags:
+- Casper Suite
+- Mac Management
+---
+<p>Today I was adding a Spotify widget to my OS X Yosemite notification center and noticed that I couldn't add it as it did not show up in Extensions in System Preferences. I also noticed that my passwords were no longer auto filling in Safari which I use myself but not everyone uses. Upon further digging, I determined that Casper with their latest update had added new restrictions to the Restrictions tab of configuration profiles. To read more check out the rest of the article.</p>
+
+<p>When looking into the Restrictions tab in the configuration profile I noticed a new option for Safari titled <strong>Allow Safari AutoFill</strong> which if enabled, enables Safari auto fill and it <strong>cannot </strong>be disabled. If you leave it disabled the reverse happens and it <strong>cannot</strong> be enabled. I like for my users to have the option to enable or disable this depending on their preference. As for the widgets, there is no option to configure them and they are just <strong>disabled</strong> by default. There are some restrictions I like to put in place for instance:</p>
+
+<p><ul>
+<li>Disabling App Store adoption</li>
+<li>Restricting access to install OS X</li>
+<li>Allow Game Center</li>
+<li>Allow Sharing and AirDrop</li>
+</ul></p>
+
+<p>Luckily I was able to move a lot of these configs to a couple plist files that I could use the <strong>Custom Settings</strong> tab in configuration profiles to deploy which resolved the issue. I have gone ahead and reported this issue to JAMF and hopefully will be receiving a defect number which I can attach to this post.</p>
+
+<p>The new option for Safari in restrictions you can find under applications.  Attached is a screenshot:</p>
+<p><a href="{{ site.baseurl }}/assets/restrictions.png"><img class="  wp-image-205 aligncenter" src="{{ site.baseurl }}/assets/restrictions.png?w=207" alt="Restrictions" width="430" height="618" /></a></p>
+<p>No environment is created equal so this may not be a big issue for those environments that are extra restrictive. In our environment however all of our users are Faculty and Staff and it just seems counter productive to disable these things by default if you have other restrictions configured without the ability to modify them properly. If you have questions on this newly discovered issue please let me know.</p>
+
+<p><strong>UPDATE: </strong>Received defect numbers from JAMF for reference.</p>
+<p><ul>
+<li>D-008697 - Safari Autofill issue</li>
+<li>D-008603 - Yosemite Notification Center issue</li>
+</ul></p>
+
+<p><strong>com.apple.applicationaccess.new.plist</strong></p>
+
+{% highlight xml %}
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>
+<plist version='1.0'>
+<dict>
+	<key>familyControlsEnabled</key>
+	<true/>
+	<key>pathBlackList</key>
+	<array>
+		<string>/Applications/Install OS X Yosemite.app/</string>
+		<string>/Applications/Install OS X Mavericks.app/</string>
+		<string>/Applications/Install OS X Mountain Lion.app/</string>
+		<string>/Applications/Install Mac OS X Lion.app/</string>
+	</array>
+	<key>pathWhiteList</key>
+	<array>
+		<string>/</string>
+	</array>
+</dict>
+{% endhighlight %}
+<p><strong>com.apple.appstore.plist</strong></p>
+{% highlight xml %}
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>
+<plist version='1.0'>
+<dict>
+	<key>restrict-store-disable-app-adoption</key>
+	<true/>
+</dict>
+</plist>
+{% endhighlight %}
+<p><strong>com.apple.gamed.plist</strong></p>
+{% highlight xml %}
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>
+<plist version='1.0'>
+<dict>
+	<key>GKFeatureAccountModificationAllowed</key>
+	<true/>
+	<key>GKFeatureAddingGameCenterFriendsAllowed</key>
+	<true/>
+	<key>GKFeatureGameCenterAllowed</key>
+	<true/>
+	<key>GKFeatureMultiplayerGamingAllowed</key>
+	<true/>
+</dict>
+</plist>
+{% endhighlight %}

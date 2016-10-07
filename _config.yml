@@ -1,0 +1,40 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+sass:
+  sass_dir: _sass
+  style: expanded # compressed # expanded
+
+# permalink and highlighter
+permalink   : /:year/:title/
+markdown    : kramdown
+
+collections:
+  attachments:
+    output: true
+    permalink: /:collection/:path/
+    title: attachments
+
+gems:
+  - jekyll-gist
+  - jekyll-auto-image
+
+# Site settings
+# url: http://nandomoreira.me
+# baseurl: ""
+
+# Author settings
+author:
+  name      : Joshua D. Miller
+  job       : Systems Administrator
+  # bio       :
+  thumb     : /images/author.jpg
+  email     : josh.miller@outlook.com
+  github    : https://github.com/joshua-d-miller
+  twitter   : https://twitter.com/joshuadmiller_
+  # facebook  : http://facebook.com
+  linkedin  : https://www.linkedin.com/in/millerjoshuad
